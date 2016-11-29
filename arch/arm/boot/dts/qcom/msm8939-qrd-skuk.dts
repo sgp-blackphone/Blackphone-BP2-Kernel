@@ -1,0 +1,70 @@
+/* Copyright (c) 2014, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+
+#include "msm8939.dtsi"
+#include "msm8939-qrd-skuk.dtsi"
+#include "dsi-panel-nt35596-1080p-skuk-video.dtsi"
+
+/ {
+	model = "Qualcomm Technologies, Inc. MSM8939 QRD SKUK";
+	compatible = "qcom,msm8939-qrd-skuk", "qcom,msm8939-qrd", "qcom,msm8939", "qcom,qrd";
+	qcom,board-id = <0x1000b 5>, <0x2000b 5>;
+};
+
+&i2c_4 {
+	smb1357_otg_supply: smb1357-charger@57 {
+		compatible = "qcom,smb1357-charger";
+		reg = <0x57>;
+		interrupt-parent = <&msm_gpio>;
+		interrupts = <62 8>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&smb_int_default>;
+
+		qcom,smb135x-vadc = <&pm8916_vadc>;
+		
+		qcom,float-voltage-mv = <4350>;
+		qcom,charging-timeout = <1536>;
+		qcom,recharge-thresh-mv = <100>;
+		qcom,iterm-ma = <100>;
+		qcom,fastchg-ma = <3000>;
+        regulator-name = "smb1357_otg_vreg";
+		qcom,soft-vfloat-comp-disabled;
+		qcom,thermal-mitigation = <3000 700 600 0>;
+
+		qcom,bms-psy-name = "rk-bat";
+        qcom,inhibit-disabled;
+		usb-pullup-supply = <&pm8916_l13>;
+	};
+};
+
+&pm8916_chg {
+	status = "ok";
+	qcom,use-external-charger;
+};
+
+&pm8916_bms {
+	status = "ok";
+	qcom,disable-bms;
+};
+
+&usb_otg {
+       qcom,hsusb-otg-mode = <1>;
+       qcom,usbid-gpio = <&msm_gpio 110 0>;
+	   qcom,usbid-switch = <&msm_gpio 77 0>;
+       pinctrl-names = "default","active","sleep";
+	   pinctrl-0 = <&usbid_default>;
+	   pinctrl-1 = <&usbid_default>;
+	   pinctrl-2 = <&usbid_sleep>;
+       vbus_otg-supply = <&smb1357_otg_supply>;
+};
